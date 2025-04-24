@@ -14,13 +14,21 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
+    private final JwtUtil jwtUtil;
+
     @Autowired
-    private JwtUtil jwtUtil;
+    public JwtRequestFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Skip token validation for login and register endpoints
-        return "/auth/login".equals(request.getServletPath()) || "/auth/register".equals(request.getServletPath());
+        // Skip token validation for login, register, forgot password, and reset password endpoints
+        return "/auth/login".equals(request.getServletPath()) ||
+                "/auth/register".equals(request.getServletPath()) ||
+                "/auth/forgot-password".equals(request.getServletPath()) ||
+                "/auth/reset-password".equals(request.getServletPath()) ||
+                "/auth/update-password".equals(request.getServletPath());
     }
 
     @Override
@@ -43,7 +51,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // Remove "Bearer " prefix
+            return bearerToken.substring(7);
         }
         return null;
     }
